@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - TrustDylane</title>
+    
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0B1120 0%, #1E3A8A 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(17, 25, 40, 0.75);
+            backdrop-filter: blur(16px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* Styles pour le chatbot */
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            border: none;
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        .chatbot-container.active {
+            transform: translateX(0);
+        }
+
+        .chatbot-header {
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            padding: 1rem;
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .chatbot-messages {
+            height: 380px;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 1rem;
+            max-width: 80%;
+            animation: fadeIn 0.3s;
+        }
+
+        .bot-message {
+            background: rgba(13, 110, 253, 0.2);
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+
+        .user-message {
+            background: rgba(13, 110, 253, 0.4);
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: typing 1s infinite;
+        }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .chatbot-input {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Styles pour le formulaire de connexion */
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #0d6efd;
+            box-shadow: none;
+            color: white;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #0d6efd;
+            box-shadow: none;
+            color: white;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            animation: shake 0.5s;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            animation: fadeIn 0.3s;
+        }
+
+        .success-icon {
+            color: #198754;
+            animation: bounceIn 0.5s;
+        }
+        .btn-gradient {
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+        }
+
+        .floating-shapes div {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            border-radius: 50%;
+            filter: blur(30px);
+            opacity: 0.3;
+            animation: float 10s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(100px, 100px); }
+            50% { transform: translate(0, 200px); }
+            75% { transform: translate(-100px, 100px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Shapes Background -->
+    <div class="floating-shapes">
+        <div style="top: 10%; left: 10%;"></div>
+        <div style="top: 70%; left: 20%;"></div>
+        <div style="top: 40%; left: 80%;"></div>
+        <div style="top: 80%; left: 70%;"></div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="container">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-12 col-md-6 col-lg-5">
+                <div class="glass-card p-4 p-md-5 animate__animated animate__fadeIn">
+                    <h2 class="text-center mb-4">Connexion</h2>
+                    
+                    <form id="loginForm" novalidate>
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+
+                        <!-- Mot de passe -->
+                        <div class="mb-4">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" required>
+                        </div>
+
+                        <div class="mb-4 d-flex justify-content-between align-items-center">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="remember">
+                                <label class="form-check-label" for="remember">Se souvenir de moi</label>
+                            </div>
+                            <a href="#" class="text-primary">Mot de passe oublié ?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-gradient w-100 py-3 mb-3">
+                            Se connecter
+                        </button>
+
+                        <p class="text-center mb-0">
+                            Pas encore de compte ? <a href="register.html" class="text-primary">S'inscrire</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <button class="chatbot-toggle animate__animated animate__bounceIn" onclick="toggleChatbot()">
+        <i class="material-icons text-white">chat</i>
+    </button>
+
+    <div class="chatbot-container glass-card">
+        <div class="chatbot-header">
+            <h5 class="mb-0">Assistant IA</h5>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="message bot-message">
+                Bonjour ! Je suis votre assistant virtuel. Comment puis-je vous aider ?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Écrivez votre message..." id="chatInput">
+                <button class="btn btn-primary" onclick="sendMessage()">
+                    <i class="material-icons">send</i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Chatbot functionality
+        let isChatbotOpen = false;
+
+        function toggleChatbot() {
+            const chatbot = document.querySelector('.chatbot-container');
+            isChatbotOpen = !isChatbotOpen;
+            chatbot.classList.toggle('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            
+            if (input.value.trim() === '') return;
+
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.textContent = input.value;
+            messages.appendChild(userMessage);
+
+            // Add typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message bot-message typing-indicator';
+            typingIndicator.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot" style="animation-delay: 0.2s"></div>
+                <div class="typing-dot" style="animation-delay: 0.4s"></div>
+            `;
+            messages.appendChild(typingIndicator);
+
+            // Scroll to bottom
+            messages.scrollTop = messages.scrollHeight;
+
+            // Clear input
+            input.value = '';
+
+            // Simulate bot response
+            setTimeout(() => {
+                typingIndicator.remove();
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot-message';
+                botMessage.textContent = "Je suis désolé, je suis en cours de maintenance. Puis-je vous aider autrement ?";
+                messages.appendChild(botMessage);
+                messages.scrollTop = messages.scrollHeight;
+            }, 2000);
+        }
+
+        // Form validation
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add your login logic here
+            console.log('Login submitted');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TrustDylane</title>
+    
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css">
+
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0B1120;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Advanced Admin Dashboard Styles */
+        .admin-sidebar {
+            width: 280px;
+            background: rgba(17, 25, 40, 0.95);
+            backdrop-filter: blur(16px);
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-sidebar.collapsed {
+            width: 80px;
+        }
+
+        .admin-main {
+            margin-left: 280px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2rem;
+        }
+
+        .admin-main.expanded {
+            margin-left: 80px;
+        }
+
+        /* Advanced Cards */
+        .admin-card {
+            background: rgba(17, 25, 40, 0.75);
+            backdrop-filter: blur(16px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Advanced Analytics Section */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Real-time Monitoring */
+        .real-time-monitor {
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .monitor-data {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(17, 25, 40, 0.9);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        /* Advanced AI Chat */
+        .ai-assistant {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .ai-window {
+            width: 400px;
+            height: 600px;
+            background: rgba(17, 25, 40, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            display: none;
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Advanced Animations */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* User Management Table */
+        .user-table {
+            background: rgba(17, 25, 40, 0.75);
+            backdrop-filter: blur(16px);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .user-table th {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Advanced Search */
+        .admin-search {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 2rem;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-search:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+            width: 350px;
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 1rem;
+            border-left: 3px solid #0d6efd;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* System Status Indicators */
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-healthy {
+            background: #00f2a9;
+            box-shadow: 0 0 10px #00f2a9;
+            animation: pulse 2s infinite;
+        }
+
+        .status-warning {
+            background: #ffd000;
+            box-shadow: 0 0 10px #ffd000;
+        }
+
+        .status-critical {
+            background: #ff5c77;
+            box-shadow: 0 0 10px #ff5c77;
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Le contenu suivra dans la prochaine partie -->
+<body>
+    <!-- Admin Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+        <div class="p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center">
+                    <img src="logo.png" alt="Logo" class="me-2" height="40">
+                    <h4 class="mb-0">Admin Panel</h4>
+                </div>
+                <button class="btn btn-link text-white" onclick="toggleSidebar()">
+                    <i class="material-icons">menu</i>
+                </button>
+            </div>
+
+            <nav class="nav flex-column">
+                <a href="#dashboard" class="nav-link active d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">dashboard</i>
+                    <span>Vue d'ensemble</span>
+                </a>
+                <a href="#users" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">people</i>
+                    <span>Utilisateurs</span>
+                    <span class="badge bg-primary ms-auto">234</span>
+                </a>
+                <a href="#transactions" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">account_balance</i>
+                    <span>Transactions</span>
+                </a>
+                <a href="#security" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">security</i>
+                    <span>Sécurité</span>
+                </a>
+                <a href="#reports" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">analytics</i>
+                    <span>Rapports</span>
+                </a>
+                <a href="#settings" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">settings</i>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+
+            <!-- System Status -->
+            <div class="mt-auto">
+                <div class="admin-card p-3 mt-4">
+                    <h6 class="mb-3">État du système</h6>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="status-indicator status-healthy"></span>
+                        API: 99.9% Uptime
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="status-indicator status-healthy"></span>
+                        Database: Optimal
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="status-indicator status-warning"></span>
+                        Cache: 82% Usage
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main" id="adminMain">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <h2 class="mb-0">Dashboard Administration</h2>
+                <span class="badge bg-primary ms-3">Version Pro</span>
+            </div>
+            
+            <div class="d-flex align-items-center">
+                <div class="position-relative me-4">
+                    <input type="text" class="admin-search" placeholder="Rechercher...">
+                    <i class="material-icons position-absolute" style="right: 15px; top: 50%; transform: translateY(-50%)">search</i>
+                </div>
+                
+                <div class="dropdown me-3">
+                    <button class="btn btn-dark position-relative" data-bs-toggle="dropdown">
+                        <i class="material-icons">notifications</i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-dark">
+                        <h6 class="dropdown-header">Notifications</h6>
+                        <a class="dropdown-item" href="#">Nouvelle inscription</a>
+                        <a class="dropdown-item" href="#">Alerte sécurité</a>
+                        <a class="dropdown-item" href="#">Mise à jour système</a>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                        <img src="admin-avatar.jpg" alt="Admin" class="rounded-circle me-2" width="32">
+                        <span>Admin</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item" href="#">Profil</a></li>
+                        <li><a class="dropdown-item" href="#">Paramètres</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">Déconnexion</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Grid -->
+        <div class="analytics-grid">
+            <!-- Stats Cards -->
+            <div class="admin-card p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-muted">Utilisateurs Actifs</h6>
+                    <i class="material-icons text-primary">group</i>
+                </div>
+                <h3 class="mb-2">1,234</h3>
+                <div class="d-flex align-items-center">
+                    <span class="text-success me-2">+12.5%</span>
+                    <small class="text-muted">vs last month</small>
+                </div>
+            </div>
+
+            <div class="admin-card p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-muted">Revenue Total</h6>
+                    <i class="material-icons text-success">payments</i>
+                </div>
+                <h3 class="mb-2">$45,850</h3>
+                <div class="d-flex align-items-center">
+                    <span class="text-success me-2">+8.3%</span>
+                    <small class="text-muted">vs last month</small>
+                </div>
+            </div>
+
+            <div class="admin-card p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-muted">Transactions</h6>
+                    <i class="material-icons text-warning">sync_alt</i>
+                </div>
+                <h3 class="mb-2">3,487</h3>
+                <div class="d-flex align-items-center">
+                    <span class="text-danger me-2">-2.4%</span>
+                    <small class="text-muted">vs last month</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Je continuerai avec la suite du contenu dans la prochaine partie -->
+<!-- Charts Section -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="admin-card p-4">
+            <div class="d-flex justify-content-between mb-4">
+                <h5>Analyse des Revenus</h5>
+                <div class="btn-group">
+                    <button class="btn btn-dark btn-sm">Jour</button>
+                    <button class="btn btn-dark btn-sm active">Semaine</button>
+                    <button class="btn btn-dark btn-sm">Mois</button>
+                </div>
+            </div>
+            <div id="revenueChart" style="height: 300px;"></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="admin-card p-4">
+            <h5 class="mb-4">Distribution des Utilisateurs</h5>
+            <div id="userDistribution" style="height: 300px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions & Activity Feed -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="admin-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5>Transactions Récentes</h5>
+                <button class="btn btn-primary btn-sm">Voir Tout</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Utilisateur</th>
+                            <th>Date</th>
+                            <th>Montant</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#TRX-789</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="user1.jpg" class="rounded-circle me-2" width="32">
+                                    Jean Dupont
+                                </div>
+                            </td>
+                            <td>13 Feb 2025</td>
+                            <td>€1,200</td>
+                            <td><span class="badge bg-success">Complété</span></td>
+                        </tr>
+                        <!-- More transaction rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="admin-card p-4">
+            <h5 class="mb-4">Activité Récente</h5>
+            <div class="activity-feed">
+                <div class="activity-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <strong>Nouvel Utilisateur</strong>
+                        <small class="text-muted">Il y a 5min</small>
+                    </div>
+                    <p class="mb-0">Marie Lambert s'est inscrite sur la plateforme</p>
+                </div>
+                <div class="activity-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <strong>Alerte Sécurité</strong>
+                        <small class="text-muted">Il y a 15min</small>
+                    </div>
+                    <p class="mb-0">Tentative de connexion suspecte détectée</p>
+                </div>
+                <!-- More activity items -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Assistant Integration -->
+<div class="ai-assistant">
+    <button class="btn btn-primary rounded-circle p-3" onclick="toggleAIAssistant()">
+        <i class="material-icons">smart_toy</i>
+    </button>
+    <div class="ai-window" id="aiWindow">
+        <div class="p-3 border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Assistant IA</h6>
+                <button class="btn btn-link text-white" onclick="toggleAIAssistant()">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+        </div>
+        <div class="p-3" style="height: calc(100% - 60px); overflow-y: auto;">
+            <!-- AI Chat Content -->
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+
+<script>
+// Toggle Sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    const main = document.getElementById('adminMain');
+    sidebar.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+}
+
+// Toggle AI Assistant
+function toggleAIAssistant() {
+    const aiWindow = document.getElementById('aiWindow');
+    aiWindow.style.display = aiWindow.style.display === 'none' ? 'block' : 'none';
+}
+
+// Initialize Revenue Chart
+var revenueOptions = {
+    series: [{
+        name: 'Revenue',
+        data: [30, 40, 35, 50, 49, 60, 70]
+    }],
+    chart: {
+        type: 'area',
+        height: 300,
+        toolbar: {
+            show: false
+        },
+        background: 'transparent'
+    },
+    colors: ['#0d6efd'],
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.7,
+            opacityTo: 0.3
+        }
+    },
+    stroke: {
+        curve: 'smooth'
+    },
+    xaxis: {
+        categories: ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul'],
+        labels: {
+            style: {
+                colors: '#fff'
+            }
+        }
+    },
+    yaxis: {
+        labels: {
+            style: {
+                colors: '#fff'
+            }
+        }
+    }
+};
+
+var revenueChart = new ApexCharts(document.querySelector("#revenueChart"), revenueOptions);
+revenueChart.render();
+
+// Initialize User Distribution Chart
+var distributionOptions = {
+    series: [44, 55, 13, 43],
+    chart: {
+        type: 'donut',
+        height: 300,
+        background: 'transparent'
+    },
+    labels: ['Premium', 'Standard', 'Basic', 'Trial'],
+    colors: ['#0d6efd', '#0dcaf0', '#ffc107', '#6c757d'],
+    legend: {
+        labels: {
+            colors: '#fff'
+        }
+    }
+};
+
+var distributionChart = new ApexCharts(document.querySelector("#userDistribution"), distributionOptions);
+distributionChart.render();
+</script>
+</body>
+</html>

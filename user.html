@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustDylane - Trading Dashboard</title>
+    
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.css">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --success-color: #00f2a9;
+            --danger-color: #ff5c77;
+            --dark-bg: #0B1120;
+            --card-bg: rgba(17, 25, 40, 0.95);
+            --hover-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--dark-bg);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(13, 110, 253, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .nav-link:hover {
+            background: var(--hover-bg);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(45deg, var(--primary-color), #0dcaf0);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .main-content.expanded {
+            margin-left: 80px;
+        }
+
+        /* Cards */
+        .dashboard-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            transition: all 0.3s ease;
+            animation: slideUp 0.5s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Trading Chart */
+        .trading-chart {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            height: 500px;
+            animation: slideUp 0.7s ease;
+        }
+
+        /* Portfolio Items */
+        .portfolio-item {
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1));
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .portfolio-item:hover {
+            transform: translateX(10px);
+            background: var(--hover-bg);
+        }
+
+        /* Market Trends */
+        .trend-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .trend-up { color: var(--success-color); }
+        .trend-down { color: var(--danger-color); }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .ai-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-color), #0dcaf0);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .ai-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .ai-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 600px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            height: calc(100% - 130px);
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            max-width: 80%;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chat-message.user {
+            margin-left: auto;
+            background: rgba(13, 110, 253, 0.2);
+            border-radius: 1rem 1rem 0 1rem;
+            padding: 1rem;
+        }
+
+        .chat-message.bot {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem 1rem 1rem 0;
+            padding: 1rem;
+        }
+
+        .chat-input {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: rgba(17, 25, 40, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        /* Modals */
+        .custom-modal {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-modal .modal-header,
+        .custom-modal .modal-footer {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Quick Trade Elements */
+        .trade-slider {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .trade-slider .noUi-connect {
+            background: var(--primary-color);
+        }
+
+        .quick-trade-btn {
+            background: linear-gradient(45deg, var(--primary-color), #0dcaf0);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .quick-trade-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .ai-window {
+                width: 100%;
+                height: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<!-- Structure du contenu -->
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center">
+                    <img src="logo.png" alt="TrustDylane" class="me-2" height="40">
+                    <h4 class="mb-0 sidebar-title">TrustDylane</h4>
+                </div>
+                <button class="btn btn-link text-white d-md-none" onclick="toggleSidebar()">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+
+            <nav class="nav flex-column">
+                <a href="#" class="nav-link active d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">dashboard</i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="#" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">account_balance_wallet</i>
+                    <span class="nav-text">Portfolio</span>
+                    <span class="badge bg-primary ms-auto">5</span>
+                </a>
+                <a href="#" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">trending_up</i>
+                    <span class="nav-text">Trading</span>
+                </a>
+                <a href="#" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">analytics</i>
+                    <span class="nav-text">Analyses</span>
+                </a>
+                <a href="#" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">history</i>
+                    <span class="nav-text">Historique</span>
+                </a>
+                <a href="#" class="nav-link d-flex align-items-center mb-3">
+                    <i class="material-icons me-3">settings</i>
+                    <span class="nav-text">Paramètres</span>
+                </a>
+            </nav>
+
+            <!-- Market Status -->
+            <div class="market-status mt-4">
+                <div class="dashboard-card p-3">
+                    <h6 class="text-muted mb-3">État du Marché</h6>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        Bitcoin: $48,235.45
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="status-dot bg-danger me-2"></span>
+                        Ethereum: $3,145.67
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="status-dot bg-warning me-2"></span>
+                        Marché Global: +2.3%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-dark d-md-none me-3" onclick="toggleSidebar()">
+                    <i class="material-icons">menu</i>
+                </button>
+                <h2 class="mb-0">Dashboard</h2>
+            </div>
+            
+            <div class="d-flex align-items-center">
+                <div class="dropdown me-3">
+                    <button class="btn btn-dark position-relative" data-bs-toggle="dropdown">
+                        <i class="material-icons">notifications</i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-dark dropdown-menu-end custom-dropdown">
+                        <h6 class="dropdown-header">Notifications</h6>
+                        <a class="dropdown-item" href="#">
+                            <div class="d-flex align-items-center">
+                                <i class="material-icons me-2 text-success">trending_up</i>
+                                <div>
+                                    <small class="text-muted d-block">Il y a 5min</small>
+                                    BTC a dépassé $48,000
+                                </div>
+                            </div>
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <div class="d-flex align-items-center">
+                                <i class="material-icons me-2 text-warning">security</i>
+                                <div>
+                                    <small class="text-muted d-block">Il y a 20min</small>
+                                    Nouvelle connexion détectée
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+                        <img src="profile.jpg" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                        <span>John Doe</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                        <a class="dropdown-item" href="#">
+                            <i class="material-icons me-2">person</i>
+                            Profil
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <i class="material-icons me-2">settings</i>
+                            Paramètres
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger" href="#">
+                            <i class="material-icons me-2">logout</i>
+                            Déconnexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="dashboard-card p-4">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6 class="text-muted">Portfolio Total</h6>
+                        <i class="material-icons text-primary">account_balance_wallet</i>
+                    </div>
+                    <h3 class="mb-2">$45,850.83</h3>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2">+2.5%</span>
+                        <small class="text-muted">vs hier</small>
+                    </div>
+                </div>
+            </div>
+            <!-- More stat cards with similar structure -->
+        </div>
+
+        <!-- Trading Chart Section -->
+        <div class="trading-chart mb-4">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0 me-3">BTC/USD</h5>
+                            <span class="badge bg-success">+2.3%</span>
+                        </div>
+                        <p class="mb-0 text-muted">$48,235.45</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group">
+                            <button class="btn btn-dark active">1H</button>
+                            <button class="btn btn-dark">4H</button>
+                            <button class="btn btn-dark">1D</button>
+                            <button class="btn btn-dark">1W</button>
+                        </div>
+                        <button class="quick-trade-btn" data-bs-toggle="modal" data-bs-target="#tradeModal">
+                            Trade Rapide
+                        </button>
+                    </div>
+                </div>
+                <div id="tradingChart"></div>
+            </div>
+        </div>
+
+        <!-- Portfolio & Market Trends -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="dashboard-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">Votre Portfolio</h5>
+                        <button class="btn btn-outline-light btn-sm">
+                            <i class="material-icons">add</i>
+                            Ajouter
+                        </button>
+                    </div>
+                    <div class="portfolio-items">
+                        <!-- Portfolio items will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="dashboard-card p-4">
+                    <h5 class="mb-4">Tendances du Marché</h5>
+                    <div class="market-trends">
+                        <!-- Market trends will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade Modal -->
+    <div class="modal fade" id="tradeModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content custom-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trade Rapide - BTC/USD</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label">Montant (USD)</label>
+                        <div id="tradeSlider" class="trade-slider mb-3"></div>
+                        <input type="number" class="form-control bg-dark text-white" id="tradeAmount" value="1000">
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <button class="btn btn-success w-100" onclick="executeTrade('buy')">
+                                <i class="material-icons">trending_up</i> Acheter
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-danger w-100" onclick="executeTrade('sell')">
+                                <i class="material-icons">trending_down</i> Vendre
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant -->
+    <div class="ai-assistant">
+        <button class="ai-toggle" onclick="toggleAI()">
+            <i class="material-icons text-white">smart_toy</i>
+        </button>
+        <div class="ai-window" id="aiWindow">
+            <div class="p-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">Assistant Trading</h6>
+                        <small class="text-muted">En ligne</small>
+                    </div>
+                    <button class="btn btn-link text-white" onclick="toggleAI()">
+                        <i class="material-icons">close</i>
+                    </button>
+                </div>
+            </div>
+            <div class="chat-container" id="chatContainer"></div>
+            <div class="chat-input">
+                <div class="input-group">
+                    <input type="text" class="form-control bg-dark border-0 text-white" 
+                           placeholder="Posez votre question..." id="chatInput"
+                           onkeypress="handleChatInput(event)">
+                    <button class="btn btn-primary" onclick="sendMessage()">
+                        <i class="material-icons">send</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.js"></script>
+
+    <script>
+     // Sidebar Toggle
+let sidebarCollapsed = false;
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    
+    if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('mobile-visible');
+    } else {
+        sidebarCollapsed = !sidebarCollapsed;
+        sidebar.classList.toggle('collapsed', sidebarCollapsed);
+        mainContent.classList.toggle('expanded', sidebarCollapsed);
+    }
+}
+
+// Trading Chart Configuration
+const chartOptions = {
+    series: [{
+        name: 'BTC/USD',
+        data: generateChartData()
+    }],
+    chart: {
+        type: 'area',
+        height: 350,
+        toolbar: {
+            show: false
+        },
+        animations: {
+            enabled: true,
+            easing: 'easeinout',
+            speed: 800
+        },
+        background: 'transparent'
+    },
+    colors: ['#0d6efd'],
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.7,
+            opacityTo: 0.3,
+            stops: [0, 90, 100]
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        curve: 'smooth',
+        width: 2
+    },
+    grid: {
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        strokeDashArray: 4
+    },
+    xaxis: {
+        type: 'datetime',
+        labels: {
+            style: {
+                colors: 'rgba(255, 255, 255, 0.7)'
+            }
+        }
+    },
+    yaxis: {
+        labels: {
+            style: {
+                colors: 'rgba(255, 255, 255, 0.7)'
+            },
+            formatter: function(value) {
+                return '$' + value.toFixed(2);
+            }
+        }
+    },
+    tooltip: {
+        theme: 'dark',
+        x: {
+            format: 'dd MMM yyyy'
+        }
+    }
+};
+
+// Generate random chart data
+function generateChartData() {
+    const data = [];
+    const date = new Date();
+    let value = 48000;
+
+    for (let i = 0; i < 100; i++) {
+        data.push({
+            x: new Date(date.getTime() - (100 - i) * 3600000),
+            y: value
+        });
+        value += Math.random() * 100 - 50;
+    }
+    return data;
+}
+
+// Initialize Trading Chart
+const chart = new ApexCharts(document.querySelector("#tradingChart"), chartOptions);
+chart.render();
+
+// Trade Slider Configuration
+const tradeSlider = document.getElementById('tradeSlider');
+noUiSlider.create(tradeSlider, {
+    start: [1000],
+    connect: [true, false],
+    range: {
+        'min': 100,
+        'max': 10000
+    },
+    step: 100
+});
+
+// Update input when slider changes
+tradeSlider.noUiSlider.on('update', function(values) {
+    document.getElementById('tradeAmount').value = Math.round(values[0]);
+});
+
+// Update slider when input changes
+document.getElementById('tradeAmount').addEventListener('change', function() {
+    tradeSlider.noUiSlider.set(this.value);
+});
+
+// Portfolio Data
+const portfolioData = [
+    { coin: 'Bitcoin', amount: 1.245, value: 35750.20, change: 2.5 },
+    { coin: 'Ethereum', amount: 12.534, value: 8250.65, change: -1.2 },
+    { coin: 'Cardano', amount: 2500.00, value: 1850.30, change: 5.7 }
+];
+
+// Render Portfolio Items
+function renderPortfolio() {
+    const container = document.querySelector('.portfolio-items');
+    container.innerHTML = portfolioData.map(item => `
+        <div class="portfolio-item">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6>${item.coin}</h6>
+                    <small class="text-muted">${item.amount} ${item.coin.substring(0, 3).toUpperCase()}</small>
+                </div>
+                <div class="text-end">
+                    <h6>$${item.value.toLocaleString()}</h6>
+                    <small class="${item.change >= 0 ? 'text-success' : 'text-danger'}">
+                        ${item.change >= 0 ? '+' : ''}${item.change}%
+                    </small>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Market Trends Data
+const trendsData = [
+    { name: 'Bitcoin', price: 48235.45, change: 2.3 },
+    { name: 'Ethereum', price: 3145.67, change: -1.5 },
+    { name: 'Cardano', price: 1.45, change: 5.2 },
+    { name: 'Solana', price: 158.23, change: 3.7 }
+];
+
+// Render Market Trends
+function renderTrends() {
+    const container = document.querySelector('.market-trends');
+    container.innerHTML = trendsData.map(trend => `
+        <div class="trend-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>${trend.name}</span>
+                <div class="text-end">
+                    <div>$${trend.price.toLocaleString()}</div>
+                    <small class="${trend.change >= 0 ? 'trend-up' : 'trend-down'}">
+                        ${trend.change >= 0 ? '+' : ''}${trend.change}%
+                    </small>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// AI Assistant Functions
+let aiVisible = false;
+
+function toggleAI() {
+    const aiWindow = document.getElementById('aiWindow');
+    aiVisible = !aiVisible;
+    aiWindow.style.display = aiVisible ? 'block' : 'none';
+}
+
+function handleChatInput(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (message) {
+        addChatMessage(message, 'user');
+        input.value = '';
+        
+        // Simulate AI response
+        setTimeout(() => {
+            const responses = [
+                "D'après l'analyse technique, BTC montre une tendance haussière.",
+                "Je vous conseille d'attendre une correction avant d'investir.",
+                "Les indicateurs suggèrent une volatilité accrue dans les prochaines heures."
+            ];
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            addChatMessage(randomResponse, 'bot');
+        }, 1000);
+    }
+}
+
+function addChatMessage(message, type) {
+    const container = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${type}`;
+    messageDiv.textContent = message;
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+}
+
+// Execute Trade Function
+function executeTrade(type) {
+    const amount = document.getElementById('tradeAmount').value;
+    alert(`${type === 'buy' ? 'Achat' : 'Vente'} de BTC pour $${amount} exécuté avec succès!`);
+    
+    // Update chart with new data point
+    const lastPrice = chartOptions.series[0].data[chartOptions.series[0].data.length - 1].y;
+    const newPrice = lastPrice + (Math.random() * 100 - 50);
+    chart.appendData([{
+        data: [{
+            x: new Date(),
+            y: newPrice
+        }]
+    }]);
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    renderPortfolio();
+    renderTrends();
+    
+    // Update data periodically
+    setInterval(() => {
+        chart.appendData([{
+            data: [{
+                x: new Date(),
+                y: chartOptions.series[0].data[chartOptions.series[0].data.length - 1].y + (Math.random() * 100 - 50)
+            }]
+        }]);
+    }, 5000);
+});
+    </script>
+</body>
+</body>
+</html>
